@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,6 +27,7 @@ public class ArrayStrip extends JPanel {
 
     private static final int BOX_W = 32;
     private static final int BOX_H = 32;
+    private static final int INDEX_H = 12;
     private static final int PAD_Y = 4;
 
     // Base and highlight colours
@@ -98,11 +100,23 @@ public class ArrayStrip extends JPanel {
         repaint();
     }
 
+    /** Returns a defensive copy of the current data. */
+    public int[] getData() {
+        return Arrays.copyOf(data, data.length);
+    }
+
+    /** Sets the value at the specified index and repaints. */
+    public void setValue(int index, int value) {
+        if (index < 0 || index >= data.length) return;
+        data[index] = value;
+        repaint();
+    }
+
     // Swing overrides
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(data.length * BOX_W, BOX_H + PAD_Y * 2);
+        return new Dimension(data.length * BOX_W, BOX_H + PAD_Y * 2 + INDEX_H);
     }
 
     @Override
@@ -122,7 +136,9 @@ public class ArrayStrip extends JPanel {
         }
 
         FontMetrics fm = g2.getFontMetrics();
-        int baseline = PAD_Y + (BOX_H + fm.getAscent()) / 2 - 2; // simple vertical centering
+        int baseline = PAD_Y + (BOX_H + fm.getAscent()) / 2 - 2; // value text baseline
+
+        int indexBaseline = PAD_Y + BOX_H + INDEX_H - 2;
 
         for (int i = 0; i < data.length; i++) {
             int x = i * BOX_W;
@@ -143,6 +159,13 @@ public class ArrayStrip extends JPanel {
             String text = String.valueOf(data[i]);
             int tw = fm.stringWidth(text);
             g2.drawString(text, x + (BOX_W - tw) / 2, baseline);
+
+            // Draw index number below box in smaller font
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 9f));
+            String idxStr = String.valueOf(i);
+            int iw = g2.getFontMetrics().stringWidth(idxStr);
+            g2.drawString(idxStr, x + (BOX_W - iw) / 2, indexBaseline);
+            g2.setFont(fm.getFont());
         }
 
         g2.dispose();

@@ -18,7 +18,7 @@ public class PlaybackBar extends JPanel {
     private final JButton playPauseBtn = new JButton("▶");
     private final JButton stepBtn = new JButton("▸▸");
     private final JButton resetBtn = new JButton("⟲");
-    private final JSlider speedSlider = new JSlider(25, 400, 100); // 1x default
+    private final JSlider speedSlider = new JSlider(5, 400, 100); // 1x default (5==0.05x)
 
     public PlaybackBar(Timeline timeline) {
         this.timeline = timeline;
@@ -32,8 +32,8 @@ public class PlaybackBar extends JPanel {
 
         // Button actions
         playPauseBtn.addActionListener(e -> togglePlayPause());
-        stepBtn.addActionListener(e -> timeline.stepForward());
-        resetBtn.addActionListener(e -> timeline.reset());
+        stepBtn.addActionListener(e -> { timeline.stepForward(); updatePlayPauseIcon(); });
+        resetBtn.addActionListener(e -> { timeline.reset(); updatePlayPauseIcon(); });
         speedSlider.addChangeListener(e -> {
             double factor = speedSlider.getValue() / 100.0;
             timeline.setSpeed(factor);
@@ -42,7 +42,7 @@ public class PlaybackBar extends JPanel {
         // Reflect external state changes (position property used as indicator)
         timeline.addPropertyChangeListener(new PropertyChangeListener() {
             @Override public void propertyChange(PropertyChangeEvent evt) {
-                if ("position".equals(evt.getPropertyName())) {
+                if ("running".equals(evt.getPropertyName())) {
                     updatePlayPauseIcon();
                 }
             }

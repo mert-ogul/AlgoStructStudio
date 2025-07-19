@@ -50,11 +50,15 @@ public class ArraysController {
             return;
         }
 
-        try {
-            target = Integer.parseInt(view.getTargetInput().trim());
-        } catch (NumberFormatException ex) {
-            showError("Invalid target value.");
-            return;
+        target = 0;
+        boolean needsTarget = view.getSelectedAlgorithm().contains("Search");
+        if (needsTarget) {
+            try {
+                target = Integer.parseInt(view.getTargetInput().trim());
+            } catch (NumberFormatException ex) {
+                showError("Invalid target value/index.");
+                return;
+            }
         }
 
         String algo = view.getSelectedAlgorithm();
@@ -64,8 +68,18 @@ public class ArraysController {
             return;
         }
 
+        view.bindArray(arr);
         timeline.reset();
         bus.post(new main.java.edu.tue.dsvis.core.event.Event(main.java.edu.tue.dsvis.core.event.Event.EventType.CUSTOM, new int[0], "start"));
+
+        // If index mode selected, convert index to value
+        if (needsTarget && view.isIndexMode()) {
+            if (target < 0 || target >= arr.length) {
+                showError("Index out of bounds.");
+                return;
+            }
+            target = arr[target];
+        }
 
         Model model = factory.apply(arr, target);
         model.run();

@@ -6,6 +6,8 @@ import main.java.edu.tue.dsvis.core.mvc.View;
 import main.java.edu.tue.dsvis.gui.CostMeter;
 import main.java.edu.tue.dsvis.gui.PseudocodePane;
 import main.java.edu.tue.dsvis.widgets.ArrayStrip;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,6 +31,7 @@ public class ArraysView implements View, EventBus.EventListener {
     private final JTextField targetField = new JTextField(5);
     private final JComboBox<String> algoBox = new JComboBox<>();
     private final JButton runButton = new JButton("Run");
+    private final JCheckBox indexModeCheck = new JCheckBox("Index mode");
 
     private long steps = 0;  // cost metric counter
 
@@ -36,6 +39,13 @@ public class ArraysView implements View, EventBus.EventListener {
         this.bus = bus;
         buildUI();
         bus.register(this);
+
+        // Live update visualization when user edits array text
+        arrayField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { updateStripFromText(); }
+            @Override public void removeUpdate(DocumentEvent e) { updateStripFromText(); }
+            @Override public void changedUpdate(DocumentEvent e) { updateStripFromText(); }
+        });
     }
 
     private void buildUI() {
@@ -43,11 +53,26 @@ public class ArraysView implements View, EventBus.EventListener {
         JPanel inputBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         inputBar.add(new JLabel("Array:"));
         inputBar.add(arrayField);
-        inputBar.add(new JLabel("Target:"));
+        JLabel targetLabel = new JLabel("Target:");
+        inputBar.add(targetLabel);
         inputBar.add(targetField);
+        inputBar.add(indexModeCheck);
         inputBar.add(algoBox);
         inputBar.add(runButton);
         root.add(inputBar, BorderLayout.NORTH);
+
+        // Show/hide target controls based on algorithm choice
+        algoBox.addActionListener(e -> {
+            boolean needsTarget = getSelectedAlgorithm().contains("Search");
+            targetLabel.setVisible(needsTarget);
+            targetField.setVisible(needsTarget);
+            indexModeCheck.setVisible(needsTarget);
+        });
+
+        // Initial visibility based on default selection
+        targetLabel.setVisible(false);
+        targetField.setVisible(false);
+        indexModeCheck.setVisible(false);
 
         // CENTER strip inside scroll pane
         root.add(new JScrollPane(strip), BorderLayout.CENTER);
@@ -81,6 +106,8 @@ public class ArraysView implements View, EventBus.EventListener {
     public void setArrayInput(String text) { arrayField.setText(text); }
     public void setTargetInput(String text) { targetField.setText(text); }
 
+    public boolean isIndexMode() { return indexModeCheck.isSelected(); }
+
     public void addRunListener(java.awt.event.ActionListener l) {
         runButton.addActionListener(l);
     }
@@ -103,6 +130,7 @@ public class ArraysView implements View, EventBus.EventListener {
         steps = 0;
         costMeter.setMetric("Steps", steps);
         highlightLine(0);
+        updateArrayFieldFromStrip();
     }
 
     // Event handling
@@ -120,6 +148,14 @@ public class ArraysView implements View, EventBus.EventListener {
                 int[] idx = e.getIndices();
                 if (idx.length >= 2) {
                     strip.swap(idx[0], idx[1]);
+                    updateArrayFieldFromStrip();
+                }
+            }
+            case SET_VALUE -> {
+                int[] idx = e.getIndices();
+                if (idx.length >= 1 && e.getPayload() instanceof Integer val) {
+                    strip.setValue(idx[0], val);
+                    updateArrayFieldFromStrip();
                 }
             }
             case CUSTOM -> {
@@ -131,5 +167,40 @@ public class ArraysView implements View, EventBus.EventListener {
             default -> {
             }
         }
+    }
+
+    // ---------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------
+
+    private void updateStripFromText() {
+        try {
+            int[] arr = parseArray(arrayField.getText());
+            strip.setData(arr);
+        } catch (NumberFormatException ignored) {
+            // Ignore invalid input while editing
+        }
+    }
+
+    private void updateArrayFieldFromStrip() {
+        int[] data = strip.getData();
+        arrayField.setText(arrayToString(data));
+    }
+
+    private int[] parseArray(String text) throws NumberFormatException {
+        String[] parts = text.trim().split("[,\\s]+");
+        if(parts.length==1 && parts[0].isEmpty()) return new int[0];
+        int[] arr = new int[parts.length];
+        for (int i=0;i<parts.length;i++) arr[i]=Integer.parseInt(parts[i]);
+        return arr;
+    }
+
+    private String arrayToString(int[] arr) {
+        StringBuilder sb = new StringBuilder();
+        for (int i=0;i<arr.length;i++) {
+            if (i>0) sb.append(',');
+            sb.append(arr[i]);
+        }
+        return sb.toString();
     }
 } 

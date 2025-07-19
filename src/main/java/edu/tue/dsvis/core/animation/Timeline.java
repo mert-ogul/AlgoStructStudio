@@ -39,6 +39,7 @@ public class Timeline {
     private final Timer timer;
 
     private int position = 0; // number of executed frames, used for UI scrubber
+    private boolean running = false;
 
     // Construction
 
@@ -61,15 +62,21 @@ public class Timeline {
 
     /** Starts playback if not already running. */
     public void start() {
-        if (!timer.isRunning()) {
+        if (!running) {
+            boolean old = running;
+            running = true;
             timer.start();
+            pcs.firePropertyChange("running", old, running);
         }
     }
 
     /** Pauses playback, keeping the current queue intact. */
     public void pause() {
-        if (timer.isRunning()) {
+        if (running) {
             timer.stop();
+            boolean old = running;
+            running = false;
+            pcs.firePropertyChange("running", old, running);
         }
     }
 
@@ -105,7 +112,7 @@ public class Timeline {
         if (Double.isNaN(factor) || factor <= 0) {
             throw new IllegalArgumentException("factor must be positive");
         }
-        double clamped = Math.max(0.25, Math.min(4.0, factor));
+        double clamped = Math.max(0.05, Math.min(4.0, factor));
         if (this.speedFactor != clamped) {
             this.speedFactor = clamped;
             timer.setDelay((int) Math.round(basePeriodMs / speedFactor));
@@ -114,7 +121,7 @@ public class Timeline {
 
     /** @return {@code true} when the timeline is actively playing. */
     public boolean isRunning() {
-        return timer.isRunning();
+        return running;
     }
 
     // Queue management helpers
