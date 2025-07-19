@@ -35,8 +35,13 @@ public class ArrayStrip extends JPanel {
     private static final Color FLASH     = new Color(0xFFEB3B); // amber
     private static final Color SWAP_A    = new Color(0x4CAF50); // green
     private static final Color SWAP_B    = new Color(0xF44336); // red
+    private static final Color DIMMED    = new Color(0xB0BEC5); // grey for outside window
 
     private int[] data = new int[0];
+
+    // Active window for search highlighting; when low>high window is disabled
+    private int windowLow = -1;
+    private int windowHigh = -1;
 
     // Map of index -> expiry time in nanos for flash effect
     private final Map<Integer, Long> flashUntil = new HashMap<>();
@@ -83,6 +88,23 @@ public class ArrayStrip extends JPanel {
         repaint();
     }
 
+    /** Flashes all indices in [l,r] for 200ms. */
+    public void flashRange(int l, int r) {
+        if (l < 0) l = 0;
+        if (r >= data.length) r = data.length - 1;
+        long expiry = System.nanoTime() + 200_000_000L;
+        for (int i = l; i <= r; i++) {
+            flashUntil.put(i, expiry);
+        }
+        repaint();
+    }
+
+    /** Clears all flash highlights. */
+    public void clearHighlights() {
+        flashUntil.clear();
+        repaint();
+    }
+
     /**
      * Shifts element at {@code src} to {@code dst}, moving intermediate
      * elements accordingly.
@@ -109,6 +131,20 @@ public class ArrayStrip extends JPanel {
     public void setValue(int index, int value) {
         if (index < 0 || index >= data.length) return;
         data[index] = value;
+        repaint();
+    }
+
+    /** Sets current active window for search visualisation. */
+    public void setSearchWindow(int low, int high) {
+        this.windowLow = low;
+        this.windowHigh = high;
+        repaint();
+    }
+
+    /** Clears any active search window. */
+    public void clearSearchWindow() {
+        this.windowLow = -1;
+        this.windowHigh = -1;
         repaint();
     }
 
@@ -146,6 +182,11 @@ public class ArrayStrip extends JPanel {
 
             // Determine colour
             Color fill = BASE;
+            if (windowLow >= 0 && windowHigh >= windowLow) {
+                if (i < windowLow || i > windowHigh) {
+                    fill = DIMMED;
+                }
+            }
             if (flashUntil.containsKey(i)) {
                 fill = FLASH;
             }

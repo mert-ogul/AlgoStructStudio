@@ -1,0 +1,11 @@
+1  low  ← 0
+2  high ← n − 1
+3  while low ≤ high do
+4      mid ← (low + high) / 2
+5      if A[mid] = target then
+6          return mid
+7      else if A[mid] < target then
+8          low  ← mid + 1
+9      else
+10         high ← mid − 1
+11 return −1 

@@ -6,6 +6,8 @@ import main.java.edu.tue.dsvis.core.mvc.View;
 import main.java.edu.tue.dsvis.gui.CostMeter;
 import main.java.edu.tue.dsvis.gui.PseudocodePane;
 import main.java.edu.tue.dsvis.widgets.ArrayStrip;
+import main.java.edu.tue.dsvis.widgets.RecursionTreePanel;
+import javax.swing.JSplitPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -24,7 +26,13 @@ public class ArraysView implements View, EventBus.EventListener {
     private final JPanel root = new JPanel(new BorderLayout(8, 8));
     private final ArrayStrip strip = new ArrayStrip();
     private final PseudocodePane pseudocode = new PseudocodePane("/pseudocode/linear_search.txt");
+    private final RecursionTreePanel treePanel = new RecursionTreePanel();
     private final CostMeter costMeter = new CostMeter();
+
+    private final java.util.Map<String,String> algoToCode = java.util.Map.of(
+            "Linear Search", "/pseudocode/linear_search.txt",
+            "Binary Search", "/pseudocode/binary_search.txt",
+            "Insertion Sort", "/pseudocode/insertion_sort.txt");
 
     // Simple input bar components
     private final JTextField arrayField = new JTextField(20);
@@ -39,6 +47,7 @@ public class ArraysView implements View, EventBus.EventListener {
         this.bus = bus;
         buildUI();
         bus.register(this);
+        bus.register(treePanel);
 
         // Live update visualization when user edits array text
         arrayField.getDocument().addDocumentListener(new DocumentListener() {
@@ -63,10 +72,15 @@ public class ArraysView implements View, EventBus.EventListener {
 
         // Show/hide target controls based on algorithm choice
         algoBox.addActionListener(e -> {
+            String sel = getSelectedAlgorithm();
             boolean needsTarget = getSelectedAlgorithm().contains("Search");
             targetLabel.setVisible(needsTarget);
             targetField.setVisible(needsTarget);
             indexModeCheck.setVisible(needsTarget);
+
+            // reload pseudocode
+            String res = algoToCode.getOrDefault(sel, "/pseudocode/linear_search.txt");
+            pseudocode.reload(res);
         });
 
         // Initial visibility based on default selection
@@ -74,11 +88,19 @@ public class ArraysView implements View, EventBus.EventListener {
         targetField.setVisible(false);
         indexModeCheck.setVisible(false);
 
-        // CENTER strip inside scroll pane
-        root.add(new JScrollPane(strip), BorderLayout.CENTER);
+        // CENTER visualisation split: array + recursion tree
+        JSplitPane vizSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(strip),
+                treePanel);
+        vizSplit.setResizeWeight(0.8);
+        root.add(vizSplit, BorderLayout.CENTER);
 
-        // EAST pseudocode
-        root.add(pseudocode, BorderLayout.EAST);
+        // EAST split with pseudocode and cost meter
+        JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(pseudocode),
+                costMeter);
+        rightSplit.setResizeWeight(0.7);
+        root.add(rightSplit, BorderLayout.EAST);
 
         // SOUTH cost meter
         root.add(costMeter, BorderLayout.SOUTH);
@@ -108,6 +130,27 @@ public class ArraysView implements View, EventBus.EventListener {
 
     public boolean isIndexMode() { return indexModeCheck.isSelected(); }
 
+    // ------------------------------------------------------------------
+    // Recursion tree visibility
+    // ------------------------------------------------------------------
+
+    public void enableRecursionTree(boolean b) {
+        treePanel.setVisible(b);
+    }
+
+    // ------------------------------------------------------------------
+    // Reset view helpers
+    // ------------------------------------------------------------------
+
+    public void resetView() {
+        strip.clearHighlights();
+        strip.clearSearchWindow();
+        treePanel.onReset();
+        pseudocode.clearHighlight();
+    }
+
+    public JButton getRunButton() { return runButton; }
+
     public void addRunListener(java.awt.event.ActionListener l) {
         runButton.addActionListener(l);
     }
@@ -119,6 +162,7 @@ public class ArraysView implements View, EventBus.EventListener {
 
     public void bindArray(int[] data) {
         strip.setData(data);
+        treePanel.bindArray(data);
     }
 
     public void highlightLine(int line) {
@@ -127,6 +171,7 @@ public class ArraysView implements View, EventBus.EventListener {
 
     public void resetUI() {
         strip.repaint();
+        strip.clearSearchWindow();
         steps = 0;
         costMeter.setMetric("Steps", steps);
         highlightLine(0);
@@ -159,9 +204,20 @@ public class ArraysView implements View, EventBus.EventListener {
                 }
             }
             case CUSTOM -> {
-                if ("STEP".equals(e.getPayload())) {
+                Object p = e.getPayload();
+                if (p instanceof String str && "STEP".equals(str)) {
                     steps++;
                     costMeter.setMetric("Steps", steps);
+                } else if (p instanceof int[] range && range.length==2) {
+                    strip.setSearchWindow(range[0], range[1]);
+                } else if (p instanceof Integer line) {
+                    pseudocode.highlight(line);
+                } else if (e.getType() == main.java.edu.tue.dsvis.core.event.Event.EventType.HIGHLIGHT_RANGE) {
+                    int[] idx = e.getIndices();
+                    if (idx.length==2) strip.flashRange(idx[0], idx[1]);
+                } else if (e.getType() == main.java.edu.tue.dsvis.core.event.Event.EventType.LINE) {
+                    int ln = e.getIndices()[0];
+                    pseudocode.highlight(ln);
                 }
             }
             default -> {
@@ -202,5 +258,10 @@ public class ArraysView implements View, EventBus.EventListener {
             sb.append(arr[i]);
         }
         return sb.toString();
+    }
+
+    // Allows controller to force reload when algorithm created programmatically
+    public void reloadPseudocode(String resource) {
+        pseudocode.reload(resource);
     }
 } 

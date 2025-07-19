@@ -1,0 +1,4 @@
+1  for i ← 0 to n − 1
+2      if A[i] = target then
+3          return i
+4  return −1 

@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import main.java.edu.tue.dsvis.modules.arrays.model.MergeSortModel;
+
 /**
  * Controller that translates user input into algorithm model execution for the
  * Arrays module.
@@ -28,7 +30,11 @@ public class ArraysController {
         this.view = view;
         registerModels();
         view.setAlgorithmOptions(modelFactories.keySet());
-        view.addRunListener(e -> initialise());
+        view.addRunListener(e -> {
+            playAlgorithm();
+        });
+        // trigger listener to set initial pseudocode visibility
+        javax.swing.SwingUtilities.invokeLater(() -> {}); // ensures algo listener runs on GUI
         populateDefaults();
     }
 
@@ -37,10 +43,11 @@ public class ArraysController {
                 new Model.ModelContext(bus, timeline)));
         modelFactories.put("Binary Search", (arr, target) -> new main.java.edu.tue.dsvis.modules.arrays.model.BinarySearchModel(arr, target, new Model.ModelContext(bus, timeline)));
         modelFactories.put("Insertion Sort", (arr, t) -> new main.java.edu.tue.dsvis.modules.arrays.model.InsertionSortModel(arr, new Model.ModelContext(bus, timeline)));
+        modelFactories.put("Merge Sort", (arr, t) -> new MergeSortModel(new Model.ModelContext(bus, timeline), java.util.Arrays.copyOf(arr, arr.length)));
     }
 
     /** Parses the UI, builds the correct model and starts animation. */
-    public void initialise() {
+    private void playAlgorithm() {
         int[] arr;
         int target;
         try {
@@ -68,8 +75,12 @@ public class ArraysController {
             return;
         }
 
-        view.bindArray(arr);
+        timeline.pause();
         timeline.reset();
+        view.resetView();
+
+        view.bindArray(arr);
+
         bus.post(new main.java.edu.tue.dsvis.core.event.Event(main.java.edu.tue.dsvis.core.event.Event.EventType.CUSTOM, new int[0], "start"));
 
         // If index mode selected, convert index to value
@@ -84,6 +95,15 @@ public class ArraysController {
         Model model = factory.apply(arr, target);
         model.run();
         timeline.start();
+
+        // re-enable run button when finished (simple approach: schedule at end)
+        view.getRunButton().setEnabled(false);
+        timeline.addFrame(new main.java.edu.tue.dsvis.core.animation.Frame(() -> view.getRunButton().setEnabled(true), 0));
+
+        // ensure pseudocode visible for merge sort built programmatically
+        if ("Merge Sort".equals(algo)) {
+            view.reloadPseudocode("/pseudocode/merge_sort.txt");
+        }
     }
 
     private int[] parseArray(String text) throws NumberFormatException {

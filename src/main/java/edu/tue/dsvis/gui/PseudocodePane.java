@@ -76,7 +76,7 @@ public class PseudocodePane extends JScrollPane {
     // Internal helpers
 
     private void loadResource(String path) {
-        try (InputStream in = getClass().getResourceAsStream(path)) {
+        try (InputStream in = resolveStream(path)) {
             if (in == null) {
                 area.setText("[pseudocode missing]");
             } else {
@@ -89,5 +89,37 @@ public class PseudocodePane extends JScrollPane {
         } catch (Exception e) {
             area.setText("[pseudocode missing]");
         }
+    }
+
+    /** Reloads pseudocode from another classpath resource. */
+    public void reload(String resourcePath) {
+        loadResource(resourcePath);
+        currentLine = -1;
+        if (currentHighlight != null) {
+            area.getHighlighter().removeHighlight(currentHighlight);
+            currentHighlight = null;
+        }
+    }
+
+    /** Clears any existing line highlight. */
+    public void clearHighlight() {
+        if (currentHighlight != null) {
+            area.getHighlighter().removeHighlight(currentHighlight);
+            currentHighlight = null;
+            currentLine = -1;
+        }
+    }
+
+    private InputStream resolveStream(String path) {
+        InputStream in = getClass().getResourceAsStream(path);
+        if (in != null) return in;
+        // Fallback: try filesystem relative to resources directory
+        try {
+            java.nio.file.Path p = java.nio.file.Paths.get("src/main/resources" + path);
+            if (java.nio.file.Files.exists(p)) {
+                return java.nio.file.Files.newInputStream(p);
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 } 

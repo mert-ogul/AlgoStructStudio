@@ -1,0 +1,19 @@
+1  MERGE-SORT(A, l, r)
+2      if l < r
+3          m ← ⌊(l + r)/2⌋
+4          MERGE-SORT(A, l, m)
+5          MERGE-SORT(A, m+1, r)
+6          MERGE(A, l, m, r)
+7
+8  MERGE(A, l, m, r)
+9      copy A[l..r] to aux[l..r]
+10     i ← l,   j ← m+1
+11     for k ← l to r
+12         if i > m
+13             A[k] ← aux[j]; j ← j + 1
+14         else if j > r
+15             A[k] ← aux[i]; i ← i + 1
+16         else if aux[i] ≤ aux[j]
+17             A[k] ← aux[i]; i ← i + 1
+18         else
+19             A[k] ← aux[j]; j ← j + 1 

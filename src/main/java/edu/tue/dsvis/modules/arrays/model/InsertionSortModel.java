@@ -21,16 +21,20 @@ public class InsertionSortModel extends Model {
     public void run() {
         int n = a.length;
         for (int j = 1; j < n; j++) {
+            // highlight outer loop line 1
+            timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 1)), 0));
             int key = a[j];
             int indexKey = j;
 
             // Highlight the key element
+            timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 2)), 0));
             timeline.addFrame(Frame.blink(() -> bus.post(Event.visit(indexKey))));
             // Custom cost metric increment – VISIT counts as a step
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
 
             int i = j - 1;
             while (i >= 0 && a[i] > key) {
+                timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 4)), 0));
                 final int idxI = i;
                 final int idxIp1 = i + 1;
 
@@ -53,6 +57,7 @@ public class InsertionSortModel extends Model {
             a[insertPos] = key;
             final int pos = insertPos;
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.SET_VALUE, new int[]{pos}, key)), 16));
+            timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 7)), 0));
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
         }
     }

@@ -27,6 +27,10 @@ public final class Event implements Serializable {
         COMPARE,
         SWAP,
         VISIT,
+        SPLIT, // TODO: Later modules (range-tree etc.) may reuse SPLIT/MERGE for region splits.
+        MERGE,
+        LINE,               // 1-based pseudocode line highlight
+        HIGHLIGHT_RANGE,    // visual highlight over array range
         HIGHLIGHT,
         SET_VALUE,
         CUSTOM
@@ -80,6 +84,35 @@ public final class Event implements Serializable {
     public static Event visit(int i) {
         return new Event(EventType.VISIT, new int[]{i}, null);
     }
+
+    public static Event split(int left, int right) {
+        return new Event(EventType.SPLIT, new int[]{left, right}, null);
+    }
+
+    public static Event merge(int left, int right) {
+        return new Event(EventType.MERGE, new int[]{left, right}, null);
+    }
+
+    /**
+     * Creates a LINE event used to highlight a 1-based pseudocode line number
+     * in {@link main.java.edu.tue.dsvis.gui.PseudocodePane}.
+     *
+     * @param ln the 1-based line number to highlight
+     */
+    public static Event line(int ln) {
+        return new Event(EventType.LINE, new int[]{ln}, null);
+    }
+
+    /**
+     * Highlights a contiguous range [{@code left}, {@code right}] in the array
+     * visualisation.
+     */
+    public static Event highlightRange(int left, int right) {
+        return new Event(EventType.HIGHLIGHT_RANGE, new int[]{left, right}, null);
+    }
+
+    // TODO: when quiz functionality lands we can replay LINE events to
+    //       PseudocodePane for step-by-step questions.
 
     // Object overrides
 
