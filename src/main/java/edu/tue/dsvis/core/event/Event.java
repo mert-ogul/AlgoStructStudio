@@ -31,6 +31,12 @@ public final class Event implements Serializable {
         MERGE,
         LINE,               // 1-based pseudocode line highlight
         HIGHLIGHT_RANGE,    // visual highlight over array range
+        // --- heap events ---
+        HEAPIFY_START,
+        HEAPIFY_END,
+        INSERT_KEY,   // index after insertion placed
+        EXTRACT_KEY,  // root index after extraction completed
+        KEY_UPDATE,
         HIGHLIGHT,
         SET_VALUE,
         CUSTOM
@@ -110,6 +116,45 @@ public final class Event implements Serializable {
     public static Event highlightRange(int left, int right) {
         return new Event(EventType.HIGHLIGHT_RANGE, new int[]{left, right}, null);
     }
+
+    /* -------------------------------------------------------------------
+     * Heap-specific helpers
+     * -------------------------------------------------------------------
+     */
+
+    public static Event heapifyStart() {
+        return new Event(EventType.HEAPIFY_START, null, null);
+    }
+
+    public static Event heapifyEnd() {
+        return new Event(EventType.HEAPIFY_END, null, null);
+    }
+
+    /**
+     * Fires after a key has been inserted and settled at its final {@code idx}
+     * position in the heap structure, allowing views to highlight that node.
+     */
+    public static Event insertKey(int idx) {
+        return new Event(EventType.INSERT_KEY, new int[]{idx}, null);
+    }
+
+    /**
+     * Fires after a key has been extracted; {@code idx} is the position of the
+     * element that was moved to fill the root, i.e. the affected index **after**
+     * the structural change.
+     */
+    public static Event extractKey(int idx) {
+        return new Event(EventType.EXTRACT_KEY, new int[]{idx}, null);
+    }
+
+    /**
+     * Highlights a node whose key value has just been changed (e.g. decrease-key).
+     * Index refers to the node location **after** the update is applied.
+     */
+    public static Event keyUpdate(int idx) {
+        return new Event(EventType.KEY_UPDATE, new int[]{idx}, null);
+    }
+
 
     // TODO: when quiz functionality lands we can replay LINE events to
     //       PseudocodePane for step-by-step questions.

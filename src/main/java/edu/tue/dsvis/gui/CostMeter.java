@@ -9,8 +9,12 @@ import java.awt.*;
  */
 public class CostMeter extends JPanel {
 
+    public static final String HEAPIFY = "Heapify steps";
+
     private final JLabel nameLabel = new JLabel();
     private final JLabel valueLabel = new JLabel();
+
+    private final java.util.Map<String, Long> metrics = new java.util.HashMap<>();
 
     public CostMeter() {
         super(new GridLayout(1, 2, 4, 0));
@@ -21,6 +25,7 @@ public class CostMeter extends JPanel {
         add(valueLabel);
 
         // defaults
+        metrics.put(HEAPIFY, 0L);
         setMetric("Steps", 0);
     }
 
@@ -40,5 +45,12 @@ public class CostMeter extends JPanel {
      */
     public void addMetric(String name) {
         // TODO: implement metric selection UI (e.g., JComboBox)
+    }
+
+    /** Increment HEAPIFY metric and refresh display. */
+    public void incrementHeapify(long delta) {
+        long v = metrics.getOrDefault(HEAPIFY, 0L) + delta;
+        metrics.put(HEAPIFY, v);
+        setMetric(HEAPIFY, v);
     }
 } 

@@ -38,7 +38,7 @@ public class PseudocodePane extends JScrollPane {
         area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         setViewportView(area);
 
-        loadResource(resourcePath);
+        loadResourceInternal(resourcePath);
     }
 
     // Public API
@@ -75,7 +75,7 @@ public class PseudocodePane extends JScrollPane {
 
     // Internal helpers
 
-    private void loadResource(String path) {
+    private void loadResourceInternal(String path) {
         try (InputStream in = resolveStream(path)) {
             if (in == null) {
                 area.setText("[pseudocode missing]");
@@ -91,15 +91,13 @@ public class PseudocodePane extends JScrollPane {
         }
     }
 
-    /** Reloads pseudocode from another classpath resource. */
-    public void reload(String resourcePath) {
-        loadResource(resourcePath);
-        currentLine = -1;
-        if (currentHighlight != null) {
-            area.getHighlighter().removeHighlight(currentHighlight);
-            currentHighlight = null;
-        }
+    /** Loads pseudocode from another classpath resource, clearing highlights. */
+    public void loadResource(String resourcePath) {
+        loadResourceInternal(resourcePath);
     }
+
+    /** Backward-compat alias. */
+    public void reload(String path) { loadResource(path); }
 
     /** Clears any existing line highlight. */
     public void clearHighlight() {

@@ -1,0 +1,15 @@
+1  INSERT-KEY(A, key)
+2      heap_size ← heap_size + 1
+3      i ← heap_size
+4      while i > 1 ∧ A[parent(i)] < key
+5          A[i] ← A[parent(i)]
+6          i ← parent(i)
+7      A[i] ← key
+8
+9  EXTRACT-MAX(A)
+10     if heap_size < 1 error
+11     max ← A[1]
+12     A[1] ← A[heap_size]
+13     heap_size ← heap_size − 1
+14     MAX-HEAPIFY(A, 1)
+15     return max 

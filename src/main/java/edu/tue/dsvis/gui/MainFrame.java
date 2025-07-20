@@ -19,12 +19,50 @@ public class MainFrame extends JFrame {
         super("DS-Vis – " + module.name());
         setLayout(new BorderLayout());
 
-        add(module.getRootPanel(), BorderLayout.CENTER);
+        // Center area placeholder to allow swapping
+        JPanel content = new JPanel(new BorderLayout());
+        add(content, BorderLayout.CENTER);
+        content.add(module.getRootPanel(), BorderLayout.CENTER);
         add(new PlaybackBar(module.getTimeline()), BorderLayout.SOUTH);
+
+        // Menu bar
+        JMenuBar menuBar = new JMenuBar();
+        JMenu mModule = new JMenu("Module");
+
+        JMenuItem arraysItem = new JMenuItem("Arrays & Simple Sorts");
+        arraysItem.addActionListener(e -> {
+            main.java.edu.tue.dsvis.modules.arrays.ArraysModule am =
+                    new main.java.edu.tue.dsvis.modules.arrays.ArraysModule(
+                            main.java.edu.tue.dsvis.core.event.EventBus.getGlobal(), new main.java.edu.tue.dsvis.core.animation.Timeline(60));
+            swapModule(content, am);
+        });
+
+        JMenuItem heapsItem = new JMenuItem("Heaps & Priority-Queues");
+        heapsItem.addActionListener(e -> {
+            main.java.edu.tue.dsvis.modules.heaps.HeapsModule hm =
+                    new main.java.edu.tue.dsvis.modules.heaps.HeapsModule(
+                            main.java.edu.tue.dsvis.core.event.EventBus.getGlobal(), new main.java.edu.tue.dsvis.core.animation.Timeline(60));
+            swapModule(content, hm);
+        });
+
+        mModule.add(arraysItem);
+        mModule.add(heapsItem);
+        menuBar.add(mModule);
+        setJMenuBar(menuBar);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    private void swapModule(JPanel content, main.java.edu.tue.dsvis.modules.ModuleDescriptor mod) {
+        content.removeAll();
+        content.add(mod.getRootPanel(), BorderLayout.CENTER);
+        getContentPane().remove(1); // remove old playback bar component (south)
+        getContentPane().add(new main.java.edu.tue.dsvis.gui.PlaybackBar(mod.getTimeline()), BorderLayout.SOUTH);
+        setTitle("DS-Vis – " + mod.name());
+        validate();
+        repaint();
     }
 } 

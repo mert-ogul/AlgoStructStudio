@@ -1,0 +1,4 @@
+1  BUILD-MAX-HEAP(A)
+2      heap_size ← length[A]
+3      for i ← ⌊heap_size/2⌋ downto 1
+4          MAX-HEAPIFY(A, i) 
