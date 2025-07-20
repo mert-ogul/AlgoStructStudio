@@ -29,10 +29,11 @@ public class ArraysView implements View, EventBus.EventListener {
     private final RecursionTreePanel treePanel = new RecursionTreePanel();
     private final CostMeter costMeter = new CostMeter();
 
-    private final java.util.Map<String,String> algoToCode = java.util.Map.of(
-            "Linear Search", "/pseudocode/linear_search.txt",
-            "Binary Search", "/pseudocode/binary_search.txt",
-            "Insertion Sort", "/pseudocode/insertion_sort.txt");
+    private final java.util.Map<String,String> algoToCode = java.util.Map.ofEntries(
+            java.util.Map.entry("Linear Search", "/pseudocode/linear_search.txt"),
+            java.util.Map.entry("Binary Search", "/pseudocode/binary_search.txt"),
+            java.util.Map.entry("Insertion Sort", "/pseudocode/insertion_sort.txt"),
+            java.util.Map.entry("Merge Sort", "/pseudocode/merge_sort.txt"));
 
     // Simple input bar components
     private final JTextField arrayField = new JTextField(20);
@@ -91,7 +92,7 @@ public class ArraysView implements View, EventBus.EventListener {
         // CENTER visualisation split: array + recursion tree
         JSplitPane vizSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 new JScrollPane(strip),
-                treePanel);
+                new JScrollPane(treePanel));
         vizSplit.setResizeWeight(0.8);
         root.add(vizSplit, BorderLayout.CENTER);
 
@@ -158,6 +159,11 @@ public class ArraysView implements View, EventBus.EventListener {
     public void setAlgorithmOptions(java.util.Collection<String> names) {
         algoBox.removeAllItems();
         for (String n : names) algoBox.addItem(n);
+        // Ensure pseudocode aligns with initial selection
+        if (algoBox.getSelectedItem() != null) {
+            String res = algoToCode.getOrDefault(algoBox.getSelectedItem().toString(), "/pseudocode/linear_search.txt");
+            pseudocode.reload(res);
+        }
     }
 
     public void bindArray(int[] data) {

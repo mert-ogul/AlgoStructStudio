@@ -21,6 +21,7 @@ public class RecursionTreePanel extends JPanel implements View, EventBus.EventLi
     private static final int NODE_W = 40;
     private static final int NODE_H = 20;
     private static final int LVL_Y = 50;
+    private static final int H_MARGIN = 40;
 
     private Node root;
     private int[] liveArray;
@@ -100,7 +101,8 @@ public class RecursionTreePanel extends JPanel implements View, EventBus.EventLi
     private void drawNode(Graphics2D g2, Node n, int depth, int maxR) {
         double centerRatio = ((n.left + n.right) / 2.0) / (maxR + 1);
         int panelW = getWidth();
-        int cx = (int) (centerRatio * panelW);
+        int usableW = Math.max(0, panelW - 2 * H_MARGIN);
+        int cx = H_MARGIN + (int) (centerRatio * usableW);
         int cy = LVL_Y * depth + 20;
 
         // Compute label first to size box
@@ -121,13 +123,13 @@ public class RecursionTreePanel extends JPanel implements View, EventBus.EventLi
         // Draw connection lines first
         if (n.leftChild != null) {
             double childRatio = ((n.leftChild.left + n.leftChild.right) / 2.0) / (maxR + 1);
-            int childCx = (int) (childRatio * panelW);
+            int childCx = H_MARGIN + (int) (childRatio * usableW);
             int childCy = LVL_Y * (depth + 1) + 20;
             g2.draw(new Line2D.Double(cx, cy + NODE_H / 2, childCx, childCy - NODE_H / 2));
         }
         if (n.rightChild != null) {
             double childRatio = ((n.rightChild.left + n.rightChild.right) / 2.0) / (maxR + 1);
-            int childCx = (int) (childRatio * panelW);
+            int childCx = H_MARGIN + (int) (childRatio * usableW);
             int childCy = LVL_Y * (depth + 1) + 20;
             g2.draw(new Line2D.Double(cx, cy + NODE_H / 2, childCx, childCy - NODE_H / 2));
         }
@@ -184,7 +186,8 @@ public class RecursionTreePanel extends JPanel implements View, EventBus.EventLi
     @Override
     public Dimension getPreferredSize() {
         int depth = calcDepth(root);
-        return new Dimension(400, depth * LVL_Y + 40);
+        int width = Math.max(600, (liveArray!=null?liveArray.length*20:400)) + 2*H_MARGIN;
+        return new Dimension(width, depth * LVL_Y + 60);
     }
 
     private int calcDepth(Node n) {
