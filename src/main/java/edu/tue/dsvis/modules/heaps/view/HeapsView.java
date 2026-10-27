@@ -46,22 +46,29 @@ public class HeapsView implements View, EventBus.EventListener {
     }
 
     private void buildUI() {
-        // control bar
-        JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        bar.add(new JLabel("Initial array:"));
-        bar.add(txtArrayInput);
-        bar.add(btnRandom);
-        bar.add(spnSize);
-        bar.add(new JLabel("Build mode:"));
-        bar.add(radBottomUp);
-        bar.add(radIncremental);
+        // control bar: building on the first row, operations on the second
+        JPanel buildRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buildRow.add(new JLabel("Initial array:"));
+        buildRow.add(txtArrayInput);
+        buildRow.add(btnRandom);
+        buildRow.add(spnSize);
+        buildRow.add(new JLabel("Build mode:"));
+        buildRow.add(radBottomUp);
+        buildRow.add(radIncremental);
         ButtonGroup grp = new ButtonGroup();
         grp.add(radBottomUp); grp.add(radIncremental);
-        bar.add(btnBuild);
-        bar.add(cmbOperation);
-        bar.add(btnRunOp);
-        bar.add(btnCompare);
-        bar.add(statusLabel);
+        buildRow.add(btnBuild);
+
+        JPanel operationRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        operationRow.add(new JLabel("Operation:"));
+        operationRow.add(cmbOperation);
+        operationRow.add(btnRunOp);
+        operationRow.add(btnCompare);
+        operationRow.add(statusLabel);
+
+        JPanel bar = new JPanel(new GridLayout(2, 1));
+        bar.add(buildRow);
+        bar.add(operationRow);
         root.add(bar, BorderLayout.NORTH);
 
         // bind twin
