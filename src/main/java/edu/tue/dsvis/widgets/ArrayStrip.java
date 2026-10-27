@@ -9,8 +9,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,13 +43,6 @@ public class ArrayStrip extends JPanel {
 
     // Map of index -> expiry time in nanos for flash effect
     private final Map<Integer, Long> flashUntil = new HashMap<>();
-
-    public ArrayStrip() {
-        // Placeholder listener for future drag-and-drop reordering support.
-        addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) {/* TODO */}
-        });
-    }
 
     // Public API
 
@@ -102,23 +93,6 @@ public class ArrayStrip extends JPanel {
     /** Clears all flash highlights. */
     public void clearHighlights() {
         flashUntil.clear();
-        repaint();
-    }
-
-    /**
-     * Shifts element at {@code src} to {@code dst}, moving intermediate
-     * elements accordingly.
-     */
-    public void shift(int src, int dst) {
-        if (src < 0 || dst < 0 || src >= data.length || dst >= data.length) return;
-        if (src == dst) return;
-        int val = data[src];
-        if (src < dst) {
-            System.arraycopy(data, src + 1, data, src, dst - src);
-        } else {
-            System.arraycopy(data, dst, data, dst + 1, src - dst);
-        }
-        data[dst] = val;
         repaint();
     }
 

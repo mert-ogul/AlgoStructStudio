@@ -41,6 +41,7 @@ public class ArraysView implements View, EventBus.EventListener {
     private final JComboBox<String> algoBox = new JComboBox<>();
     private final JButton runButton = new JButton("Run");
     private final JCheckBox indexModeCheck = new JCheckBox("Index mode");
+    private final JLabel statusLabel = new JLabel(" ");
 
     private long steps = 0;  // cost metric counter
 
@@ -69,6 +70,7 @@ public class ArraysView implements View, EventBus.EventListener {
         inputBar.add(indexModeCheck);
         inputBar.add(algoBox);
         inputBar.add(runButton);
+        inputBar.add(statusLabel);
         root.add(inputBar, BorderLayout.NORTH);
 
         // Show/hide target controls based on algorithm choice
@@ -93,15 +95,11 @@ public class ArraysView implements View, EventBus.EventListener {
         JSplitPane vizSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                 new JScrollPane(strip),
                 new JScrollPane(treePanel));
-        vizSplit.setResizeWeight(0.8);
+        vizSplit.setResizeWeight(0.2);
         root.add(vizSplit, BorderLayout.CENTER);
 
-        // EAST split with pseudocode and cost meter
-        JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                new JScrollPane(pseudocode),
-                costMeter);
-        rightSplit.setResizeWeight(0.7);
-        root.add(rightSplit, BorderLayout.EAST);
+        // EAST pseudocode
+        root.add(pseudocode, BorderLayout.EAST);
 
         // SOUTH cost meter
         root.add(costMeter, BorderLayout.SOUTH);
@@ -129,15 +127,9 @@ public class ArraysView implements View, EventBus.EventListener {
     public void setArrayInput(String text) { arrayField.setText(text); }
     public void setTargetInput(String text) { targetField.setText(text); }
 
+    public void setStatus(String text) { statusLabel.setText(text); }
+
     public boolean isIndexMode() { return indexModeCheck.isSelected(); }
-
-    // ------------------------------------------------------------------
-    // Recursion tree visibility
-    // ------------------------------------------------------------------
-
-    public void enableRecursionTree(boolean b) {
-        treePanel.setVisible(b);
-    }
 
     // ------------------------------------------------------------------
     // Reset view helpers
@@ -148,6 +140,9 @@ public class ArraysView implements View, EventBus.EventListener {
         strip.clearSearchWindow();
         treePanel.onReset();
         pseudocode.clearHighlight();
+        steps = 0;
+        costMeter.setMetric("Steps", steps);
+        statusLabel.setText(" ");
     }
 
     /** Stops listening to the event bus. */
@@ -209,9 +204,16 @@ public class ArraysView implements View, EventBus.EventListener {
                 int[] idx = e.getIndices();
                 if (idx.length >= 1 && e.getPayload() instanceof Integer val) {
                     strip.setValue(idx[0], val);
+                    treePanel.bindArray(strip.getData());
                     updateArrayFieldFromStrip();
                 }
             }
+            case HIGHLIGHT_RANGE -> {
+                int[] idx = e.getIndices();
+                if (idx.length == 2) strip.flashRange(idx[0], idx[1]);
+            }
+            case LINE -> pseudocode.highlight(e.getIndices()[0]);
+            case RESULT -> statusLabel.setText(String.valueOf(e.getPayload()));
             case CUSTOM -> {
                 Object p = e.getPayload();
                 if (p instanceof String str && "STEP".equals(str)) {
@@ -221,12 +223,6 @@ public class ArraysView implements View, EventBus.EventListener {
                     strip.setSearchWindow(range[0], range[1]);
                 } else if (p instanceof Integer line) {
                     pseudocode.highlight(line);
-                } else if (e.getType() == edu.tue.dsvis.core.event.Event.EventType.HIGHLIGHT_RANGE) {
-                    int[] idx = e.getIndices();
-                    if (idx.length==2) strip.flashRange(idx[0], idx[1]);
-                } else if (e.getType() == edu.tue.dsvis.core.event.Event.EventType.LINE) {
-                    int ln = e.getIndices()[0];
-                    pseudocode.highlight(ln);
                 }
             }
             default -> {
@@ -273,4 +269,4 @@ public class ArraysView implements View, EventBus.EventListener {
     public void reloadPseudocode(String resource) {
         pseudocode.reload(resource);
     }
-} 
+}

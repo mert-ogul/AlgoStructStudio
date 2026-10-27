@@ -21,7 +21,6 @@ public final class MergeSortModel extends Model {
 
     @Override
     public void run() {
-        timeline.reset();
         timeline.addFrame(new Frame(() -> bus.post(Event.line(1)), 0)); // header
         mergeSort(0, a.length - 1);
         // final highlight
@@ -35,11 +34,10 @@ public final class MergeSortModel extends Model {
         timeline.addFrame(new Frame(() -> bus.post(Event.line(2)), 0)); // if check
 
         // SPLIT event for RecursionTreePanel
-        bus.post(Event.split(l, r));
+        timeline.addFrame(new Frame(() -> bus.post(Event.split(l, r)), 0));
 
         timeline.addFrame(new Frame(() -> bus.post(Event.line(3)), 30)); // compute mid
 
-        mergeSort(l, mid);
         timeline.addFrame(new Frame(() -> bus.post(Event.line(4)), 0));
         mergeSort(l, mid);
         timeline.addFrame(new Frame(() -> bus.post(Event.line(5)), 0));
@@ -50,7 +48,7 @@ public final class MergeSortModel extends Model {
         merge(l, mid, r);
 
         // MERGE event
-        bus.post(Event.merge(l, r));
+        timeline.addFrame(new Frame(() -> bus.post(Event.merge(l, r)), 0));
     }
 
     private void merge(int l, int m, int r) {
@@ -67,9 +65,10 @@ public final class MergeSortModel extends Model {
         while (i <= m && j <= r) {
             int ii = i, jj = j, kk = k; // effectively final for lambdas
             timeline.addFrame(Frame.blink(() -> {
-                bus.post(Event.line(12));
+                bus.post(Event.line(16));
                 bus.post(Event.compare(ii));
                 bus.post(Event.compare(jj));
+                bus.post(Event.step());
             }));
 
             if (aux[i] <= aux[j]) {
@@ -79,6 +78,7 @@ public final class MergeSortModel extends Model {
                 timeline.addFrame(new Frame(() -> {
                     bus.post(Event.line(17));
                     bus.post(new Event(Event.EventType.SET_VALUE, new int[]{dst}, val));
+                    bus.post(Event.step());
                 }, (a.length>64)?0:30));
             } else {
                 int val = aux[j++];
@@ -87,6 +87,7 @@ public final class MergeSortModel extends Model {
                 timeline.addFrame(new Frame(() -> {
                     bus.post(Event.line(19));
                     bus.post(new Event(Event.EventType.SET_VALUE, new int[]{dst}, val));
+                    bus.post(Event.step());
                 }, (a.length>64)?0:30));
             }
             k++;
@@ -98,8 +99,9 @@ public final class MergeSortModel extends Model {
             int dst = k;
             a[dst] = val;
             timeline.addFrame(new Frame(() -> {
-                bus.post(Event.line(14));
+                bus.post(Event.line(15));
                 bus.post(new Event(Event.EventType.SET_VALUE, new int[]{dst}, val));
+                bus.post(Event.step());
             }, (a.length>64)?0:20));
             k++;
         }
@@ -110,10 +112,11 @@ public final class MergeSortModel extends Model {
             int dst = k;
             a[dst] = val;
             timeline.addFrame(new Frame(() -> {
-                bus.post(Event.line(12));
+                bus.post(Event.line(13));
                 bus.post(new Event(Event.EventType.SET_VALUE, new int[]{dst}, val));
+                bus.post(Event.step());
             }, (a.length>64)?0:20));
             k++;
         }
     }
-} 
+}

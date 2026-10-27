@@ -6,8 +6,6 @@ import edu.tue.dsvis.core.mvc.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
 
@@ -167,21 +165,6 @@ public class RecursionTreePanel extends JPanel implements View, EventBus.EventLi
     }
 
     public void bindArray(int[] arr) { this.liveArray = arr; repaint(); }
-
-    private Node findNearest(Node current, int x, int y, int depth, int maxR) {
-        if (current == null) return null;
-        double centerRatio = ((current.left + current.right) / 2.0) / (maxR + 1);
-        int panelW = getWidth();
-        int cx = (int) (centerRatio * panelW);
-        int cy = LVL_Y * depth + 20;
-        int x0 = cx - NODE_W / 2;
-        int y0 = cy - NODE_H / 2;
-        if (x >= x0 && x <= x0 + NODE_W && y >= y0 && y <= y0 + NODE_H)
-            return current;
-        Node n = findNearest(current.leftChild, x, y, depth + 1, maxR);
-        if (n != null) return n;
-        return findNearest(current.rightChild, x, y, depth + 1, maxR);
-    }
 
     @Override
     public Dimension getPreferredSize() {

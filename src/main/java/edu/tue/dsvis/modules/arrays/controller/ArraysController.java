@@ -6,9 +6,10 @@ import edu.tue.dsvis.core.mvc.Model;
 import edu.tue.dsvis.modules.arrays.view.ArraysView;
 
 import javax.swing.*;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import edu.tue.dsvis.modules.arrays.model.MergeSortModel;
 
@@ -22,7 +23,7 @@ public class ArraysController {
     private final Timeline timeline;
     private final ArraysView view;
 
-    private final Map<String, BiFunction<int[], Integer, Model>> modelFactories = new HashMap<>();
+    private final Map<String, BiFunction<int[], Integer, Model>> modelFactories = new LinkedHashMap<>();
 
     public ArraysController(EventBus bus, Timeline timeline, ArraysView view) {
         this.bus = bus;
@@ -33,8 +34,6 @@ public class ArraysController {
         view.addRunListener(e -> {
             playAlgorithm();
         });
-        // trigger listener to set initial pseudocode visibility
-        javax.swing.SwingUtilities.invokeLater(() -> {}); // ensures algo listener runs on GUI
         populateDefaults();
     }
 
@@ -79,6 +78,12 @@ public class ArraysController {
         timeline.reset();
         view.resetView();
 
+        boolean sortedFirst = "Binary Search".equals(algo) && !isSorted(arr);
+        if (sortedFirst) {
+            java.util.Arrays.sort(arr);
+            view.setArrayInput(java.util.Arrays.stream(arr).mapToObj(String::valueOf).collect(Collectors.joining(",")));
+        }
+
         view.bindArray(arr);
 
         bus.post(new edu.tue.dsvis.core.event.Event(edu.tue.dsvis.core.event.Event.EventType.CUSTOM, new int[0], "start"));
@@ -91,6 +96,16 @@ public class ArraysController {
             }
             target = arr[target];
         }
+
+        // First frame restores the starting state, so a rewind replays the run from the beginning
+        int[] initial = arr.clone();
+        String initialText = view.getArrayInput();
+        timeline.addFrame(new edu.tue.dsvis.core.animation.Frame(() -> {
+            view.resetView();
+            view.setArrayInput(initialText);
+            view.bindArray(initial);
+            if (sortedFirst) view.setStatus("Array sorted first: binary search needs sorted input");
+        }, 0));
 
         Model model = factory.apply(arr, target);
         model.run();
@@ -119,6 +134,13 @@ public class ArraysController {
         JOptionPane.showMessageDialog(view.getRoot(), msg, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    private boolean isSorted(int[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            if (arr[i] > arr[i + 1]) return false;
+        }
+        return true;
+    }
+
     /** Clears UI-specific state so that another run can start fresh. */
     public void resetUI() {
         timeline.reset();
@@ -134,4 +156,4 @@ public class ArraysController {
         view.setArrayInput(sb.toString());
         view.setTargetInput("9");
     }
-} 
+}

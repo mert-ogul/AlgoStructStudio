@@ -30,7 +30,7 @@ public class InsertionSortModel extends Model {
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 2)), 0));
             timeline.addFrame(Frame.blink(() -> bus.post(Event.visit(indexKey))));
             // Custom cost metric increment – VISIT counts as a step
-            timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
+            timeline.addFrame(new Frame(() -> bus.post(Event.step()), 0));
 
             int i = j - 1;
             while (i >= 0 && a[i] > key) {
@@ -40,7 +40,7 @@ public class InsertionSortModel extends Model {
 
                 // Compare cost
                 timeline.addFrame(Frame.blink(() -> bus.post(Event.compare(idxI))));
-                timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
+                timeline.addFrame(new Frame(() -> bus.post(Event.step()), 0));
 
                 // Swap elements in the internal array and emit SWAP event
                 int temp = a[idxI];
@@ -48,7 +48,7 @@ public class InsertionSortModel extends Model {
                 a[idxI] = key; // temporarily place key to idxI until loop ends
 
                 timeline.addFrame(new Frame(() -> bus.post(Event.swap(idxI, idxIp1)), 16));
-                timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
+                timeline.addFrame(new Frame(() -> bus.post(Event.step()), 0));
 
                 i--;
             }
@@ -58,7 +58,7 @@ public class InsertionSortModel extends Model {
             final int pos = insertPos;
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.SET_VALUE, new int[]{pos}, key)), 16));
             timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], 7)), 0));
-            timeline.addFrame(new Frame(() -> bus.post(new Event(Event.EventType.CUSTOM, new int[0], "STEP")), 0));
+            timeline.addFrame(new Frame(() -> bus.post(Event.step()), 0));
         }
     }
 } 

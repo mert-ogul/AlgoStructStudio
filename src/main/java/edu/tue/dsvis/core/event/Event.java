@@ -39,6 +39,7 @@ public final class Event implements Serializable {
         KEY_UPDATE,
         HIGHLIGHT,
         SET_VALUE,
+        RESULT, // message for the user, e.g. the outcome of a search
         CUSTOM
     }
 
@@ -116,6 +117,12 @@ public final class Event implements Serializable {
     public static Event highlightRange(int left, int right) {
         return new Event(EventType.HIGHLIGHT_RANGE, new int[]{left, right}, null);
     }
+
+    /** Counts one elementary step (a comparison or a write) for the cost meter. */
+    public static Event step() { return new Event(EventType.CUSTOM, null, "STEP"); }
+
+    /** Carries a short message for the user, such as the outcome of a search. */
+    public static Event result(String message) { return new Event(EventType.RESULT, null, message); }
 
     /* -------------------------------------------------------------------
      * Heap-specific helpers
