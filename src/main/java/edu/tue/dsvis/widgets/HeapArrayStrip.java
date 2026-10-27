@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.widgets;
+package edu.tue.dsvis.widgets;
 
 import java.awt.*;
 import javax.swing.*;

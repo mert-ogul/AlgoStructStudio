@@ -1,8 +1,8 @@
-package main.java.edu.tue.dsvis.widgets;
+package edu.tue.dsvis.widgets;
 
-import main.java.edu.tue.dsvis.core.event.Event;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.core.mvc.View;
+import edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.mvc.View;
 
 import javax.swing.*;
 import java.awt.*;

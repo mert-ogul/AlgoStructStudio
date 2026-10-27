@@ -1,10 +1,10 @@
-package main.java.edu.tue.dsvis.modules.heaps;
+package edu.tue.dsvis.modules.heaps;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.modules.ModuleDescriptor;
-import main.java.edu.tue.dsvis.modules.heaps.view.HeapsView;
-import main.java.edu.tue.dsvis.modules.heaps.controller.HeapsController;
+import edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.modules.ModuleDescriptor;
+import edu.tue.dsvis.modules.heaps.view.HeapsView;
+import edu.tue.dsvis.modules.heaps.controller.HeapsController;
 
 import javax.swing.*;
 
@@ -33,4 +33,6 @@ public class HeapsModule implements ModuleDescriptor {
         timeline.reset();
         view.resetView();
     }
+
+    @Override public void dispose() { timeline.reset(); view.detach(); }
 } 

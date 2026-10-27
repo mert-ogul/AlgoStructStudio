@@ -1,6 +1,6 @@
-package main.java.edu.tue.dsvis.gui;
+package edu.tue.dsvis.gui;
 
-import main.java.edu.tue.dsvis.modules.ModuleDescriptor;
+import edu.tue.dsvis.modules.ModuleDescriptor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +10,16 @@ import java.awt.*;
  */
 public class MainFrame extends JFrame {
 
+    private ModuleDescriptor current;
+
     /**
      * Constructs a main frame for the given module.
      *
-     * @param module an instance of {@link main.java.edu.tue.dsvis.Main.MainModule}
+     * @param module the module shown when the window opens
      */
     public MainFrame(ModuleDescriptor module) {
-        super("DS-Vis – " + module.name());
+        super("AlgoStruct Studio – " + module.name());
+        this.current = module;
         setLayout(new BorderLayout());
 
         // Center area placeholder to allow swapping
@@ -31,17 +34,17 @@ public class MainFrame extends JFrame {
 
         JMenuItem arraysItem = new JMenuItem("Arrays & Simple Sorts");
         arraysItem.addActionListener(e -> {
-            main.java.edu.tue.dsvis.modules.arrays.ArraysModule am =
-                    new main.java.edu.tue.dsvis.modules.arrays.ArraysModule(
-                            main.java.edu.tue.dsvis.core.event.EventBus.getGlobal(), new main.java.edu.tue.dsvis.core.animation.Timeline(60));
+            edu.tue.dsvis.modules.arrays.ArraysModule am =
+                    new edu.tue.dsvis.modules.arrays.ArraysModule(
+                            edu.tue.dsvis.core.event.EventBus.getGlobal(), new edu.tue.dsvis.core.animation.Timeline());
             swapModule(content, am);
         });
 
         JMenuItem heapsItem = new JMenuItem("Heaps & Priority-Queues");
         heapsItem.addActionListener(e -> {
-            main.java.edu.tue.dsvis.modules.heaps.HeapsModule hm =
-                    new main.java.edu.tue.dsvis.modules.heaps.HeapsModule(
-                            main.java.edu.tue.dsvis.core.event.EventBus.getGlobal(), new main.java.edu.tue.dsvis.core.animation.Timeline(60));
+            edu.tue.dsvis.modules.heaps.HeapsModule hm =
+                    new edu.tue.dsvis.modules.heaps.HeapsModule(
+                            edu.tue.dsvis.core.event.EventBus.getGlobal(), new edu.tue.dsvis.core.animation.Timeline());
             swapModule(content, hm);
         });
 
@@ -51,18 +54,20 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        pack();
+        setSize(1200, 750);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    private void swapModule(JPanel content, main.java.edu.tue.dsvis.modules.ModuleDescriptor mod) {
+    private void swapModule(JPanel content, edu.tue.dsvis.modules.ModuleDescriptor mod) {
+        current.dispose();
+        current = mod;
         content.removeAll();
         content.add(mod.getRootPanel(), BorderLayout.CENTER);
         getContentPane().remove(1); // remove old playback bar component (south)
-        getContentPane().add(new main.java.edu.tue.dsvis.gui.PlaybackBar(mod.getTimeline()), BorderLayout.SOUTH);
-        setTitle("DS-Vis – " + mod.name());
+        getContentPane().add(new edu.tue.dsvis.gui.PlaybackBar(mod.getTimeline()), BorderLayout.SOUTH);
+        setTitle("AlgoStruct Studio – " + mod.name());
         validate();
         repaint();
     }
-} 
+}

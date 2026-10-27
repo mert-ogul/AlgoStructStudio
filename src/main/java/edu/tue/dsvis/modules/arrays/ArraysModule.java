@@ -1,10 +1,10 @@
-package main.java.edu.tue.dsvis.modules.arrays;
+package edu.tue.dsvis.modules.arrays;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.modules.ModuleDescriptor;
-import main.java.edu.tue.dsvis.modules.arrays.view.ArraysView;
-import main.java.edu.tue.dsvis.modules.arrays.controller.ArraysController;
+import edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.modules.ModuleDescriptor;
+import edu.tue.dsvis.modules.arrays.view.ArraysView;
+import edu.tue.dsvis.modules.arrays.controller.ArraysController;
 
 import javax.swing.*;
 
@@ -44,5 +44,11 @@ public class ArraysModule implements ModuleDescriptor {
     public void reset() {
         timeline.reset();
         ctrl.resetUI();
+    }
+
+    @Override
+    public void dispose() {
+        timeline.reset();
+        view.detach();
     }
 } 

@@ -1,6 +1,6 @@
-package main.java.edu.tue.dsvis.modules.heaps;
+package edu.tue.dsvis.modules.heaps;
 
-import main.java.edu.tue.dsvis.core.mvc.Model;
+import edu.tue.dsvis.core.mvc.Model;
 
 import java.util.Arrays;
 

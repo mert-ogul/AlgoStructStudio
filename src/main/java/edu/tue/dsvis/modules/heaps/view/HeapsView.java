@@ -1,13 +1,13 @@
-package main.java.edu.tue.dsvis.modules.heaps.view;
+package edu.tue.dsvis.modules.heaps.view;
 
-import main.java.edu.tue.dsvis.core.event.Event;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.core.mvc.View;
-import main.java.edu.tue.dsvis.gui.CostMeter;
-import main.java.edu.tue.dsvis.gui.PseudocodePane;
-import main.java.edu.tue.dsvis.widgets.HeapArrayStrip;
-import main.java.edu.tue.dsvis.widgets.HeapTreePanel;
-import main.java.edu.tue.dsvis.widgets.PriorityQueuePanel;
+import edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.mvc.View;
+import edu.tue.dsvis.gui.CostMeter;
+import edu.tue.dsvis.gui.PseudocodePane;
+import edu.tue.dsvis.widgets.HeapArrayStrip;
+import edu.tue.dsvis.widgets.HeapTreePanel;
+import edu.tue.dsvis.widgets.PriorityQueuePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,6 +91,9 @@ public class HeapsView implements View, EventBus.EventListener {
         bus.register(treePanel);
     }
 
+    /** Stops listening to the event bus. */
+    public void detach() { EventBus.getGlobal().unregister(this); EventBus.getGlobal().unregister(treePanel); }
+
     private void fillRandom() {
         int n = (Integer) spnSize.getValue();
         Random rnd = new Random();
@@ -107,7 +110,7 @@ public class HeapsView implements View, EventBus.EventListener {
     public void addBuildListener(java.awt.event.ActionListener l) { btnBuild.addActionListener(l); }
     public void addRunOpListener(java.awt.event.ActionListener l) { btnRunOp.addActionListener(l); }
 
-    public void bindPQModel(main.java.edu.tue.dsvis.modules.heaps.HeapModel m) { pqPanel.bindModel(m); }
+    public void bindPQModel(edu.tue.dsvis.modules.heaps.HeapModel m) { pqPanel.bindModel(m); }
 
     public JPanel getRoot() { return root; }
 

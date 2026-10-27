@@ -1,6 +1,6 @@
-package main.java.edu.tue.dsvis.modules;
+package edu.tue.dsvis.modules;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.animation.Timeline;
 
 import javax.swing.*;
 
@@ -25,4 +25,7 @@ public interface ModuleDescriptor {
 
     /** Resets the module’s internal state; no-op for simple modules. */
     void reset();
+
+    /** Stops the module's animation and detaches its views from the event bus. Called when the user switches to another module. */
+    void dispose();
 } 

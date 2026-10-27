@@ -1,6 +1,6 @@
-package main.java.edu.tue.dsvis.gui;
+package edu.tue.dsvis.gui;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.animation.Timeline;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,10 +30,14 @@ public class PlaybackBar extends JPanel {
         add(new JLabel("Speed:"));
         add(speedSlider);
 
+        playPauseBtn.setToolTipText("Play / pause");
+        stepBtn.setToolTipText("Step forward");
+        resetBtn.setToolTipText("Rewind to start");
+
         // Button actions
         playPauseBtn.addActionListener(e -> togglePlayPause());
         stepBtn.addActionListener(e -> { timeline.stepForward(); updatePlayPauseIcon(); });
-        resetBtn.addActionListener(e -> { timeline.reset(); updatePlayPauseIcon(); });
+        resetBtn.addActionListener(e -> { timeline.rewind(); updatePlayPauseIcon(); });
         speedSlider.addChangeListener(e -> {
             double factor = speedSlider.getValue() / 100.0;
             timeline.setSpeed(factor);

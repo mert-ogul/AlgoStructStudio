@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.core.event;
+package edu.tue.dsvis.core.event;
 
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;

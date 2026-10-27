@@ -1,16 +1,16 @@
-package main.java.edu.tue.dsvis.modules.arrays.controller;
+package edu.tue.dsvis.modules.arrays.controller;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.core.mvc.Model;
-import main.java.edu.tue.dsvis.modules.arrays.view.ArraysView;
+import edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.mvc.Model;
+import edu.tue.dsvis.modules.arrays.view.ArraysView;
 
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import main.java.edu.tue.dsvis.modules.arrays.model.MergeSortModel;
+import edu.tue.dsvis.modules.arrays.model.MergeSortModel;
 
 /**
  * Controller that translates user input into algorithm model execution for the
@@ -39,10 +39,10 @@ public class ArraysController {
     }
 
     private void registerModels() {
-        modelFactories.put("Linear Search", (arr, target) -> new main.java.edu.tue.dsvis.modules.arrays.model.LinearSearchModel(arr, target,
+        modelFactories.put("Linear Search", (arr, target) -> new edu.tue.dsvis.modules.arrays.model.LinearSearchModel(arr, target,
                 new Model.ModelContext(bus, timeline)));
-        modelFactories.put("Binary Search", (arr, target) -> new main.java.edu.tue.dsvis.modules.arrays.model.BinarySearchModel(arr, target, new Model.ModelContext(bus, timeline)));
-        modelFactories.put("Insertion Sort", (arr, t) -> new main.java.edu.tue.dsvis.modules.arrays.model.InsertionSortModel(arr, new Model.ModelContext(bus, timeline)));
+        modelFactories.put("Binary Search", (arr, target) -> new edu.tue.dsvis.modules.arrays.model.BinarySearchModel(arr, target, new Model.ModelContext(bus, timeline)));
+        modelFactories.put("Insertion Sort", (arr, t) -> new edu.tue.dsvis.modules.arrays.model.InsertionSortModel(arr, new Model.ModelContext(bus, timeline)));
         modelFactories.put("Merge Sort", (arr, t) -> new MergeSortModel(new Model.ModelContext(bus, timeline), java.util.Arrays.copyOf(arr, arr.length)));
     }
 
@@ -81,7 +81,7 @@ public class ArraysController {
 
         view.bindArray(arr);
 
-        bus.post(new main.java.edu.tue.dsvis.core.event.Event(main.java.edu.tue.dsvis.core.event.Event.EventType.CUSTOM, new int[0], "start"));
+        bus.post(new edu.tue.dsvis.core.event.Event(edu.tue.dsvis.core.event.Event.EventType.CUSTOM, new int[0], "start"));
 
         // If index mode selected, convert index to value
         if (needsTarget && view.isIndexMode()) {
@@ -98,7 +98,7 @@ public class ArraysController {
 
         // re-enable run button when finished (simple approach: schedule at end)
         view.getRunButton().setEnabled(false);
-        timeline.addFrame(new main.java.edu.tue.dsvis.core.animation.Frame(() -> view.getRunButton().setEnabled(true), 0));
+        timeline.addFrame(new edu.tue.dsvis.core.animation.Frame(() -> view.getRunButton().setEnabled(true), 0));
 
         // ensure pseudocode visible for merge sort built programmatically
         if ("Merge Sort".equals(algo)) {

@@ -1,12 +1,12 @@
-package main.java.edu.tue.dsvis.modules.arrays.model;
+package edu.tue.dsvis.modules.arrays.model;
 
-import main.java.edu.tue.dsvis.core.animation.Frame;
-import main.java.edu.tue.dsvis.core.event.Event;
-import main.java.edu.tue.dsvis.core.mvc.Model;
+import edu.tue.dsvis.core.animation.Frame;
+import edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.mvc.Model;
 
 /**
  * Insertion sort algorithm model that schedules visualisation frames on the
- * {@link main.java.edu.tue.dsvis.core.animation.Timeline}.
+ * {@link edu.tue.dsvis.core.animation.Timeline}.
  */
 public class InsertionSortModel extends Model {
 

@@ -1,8 +1,8 @@
-package main.java.edu.tue.dsvis.modules.arrays.model;
+package edu.tue.dsvis.modules.arrays.model;
 
-import main.java.edu.tue.dsvis.core.animation.Frame;
-import main.java.edu.tue.dsvis.core.mvc.Model;
-import main.java.edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.animation.Frame;
+import edu.tue.dsvis.core.mvc.Model;
+import edu.tue.dsvis.core.event.Event;
 
 /**
  * Binary search algorithm model that emits comparison and visit events via the

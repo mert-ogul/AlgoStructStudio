@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.core.event;
+package edu.tue.dsvis.core.event;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -101,7 +101,7 @@ public final class Event implements Serializable {
 
     /**
      * Creates a LINE event used to highlight a 1-based pseudocode line number
-     * in {@link main.java.edu.tue.dsvis.gui.PseudocodePane}.
+     * in {@link edu.tue.dsvis.gui.PseudocodePane}.
      *
      * @param ln the 1-based line number to highlight
      */

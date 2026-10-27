@@ -1,10 +1,10 @@
-package main.java.edu.tue.dsvis.modules.heaps.controller;
+package edu.tue.dsvis.modules.heaps.controller;
 
-import main.java.edu.tue.dsvis.core.animation.Timeline;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.core.mvc.Controller;
-import main.java.edu.tue.dsvis.modules.heaps.HeapModel;
-import main.java.edu.tue.dsvis.modules.heaps.view.HeapsView;
+import edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.mvc.Controller;
+import edu.tue.dsvis.modules.heaps.HeapModel;
+import edu.tue.dsvis.modules.heaps.view.HeapsView;
 
 public class HeapsController implements Controller {
 

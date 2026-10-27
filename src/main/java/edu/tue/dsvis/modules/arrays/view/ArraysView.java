@@ -1,12 +1,12 @@
-package main.java.edu.tue.dsvis.modules.arrays.view;
+package edu.tue.dsvis.modules.arrays.view;
 
-import main.java.edu.tue.dsvis.core.event.Event;
-import main.java.edu.tue.dsvis.core.event.EventBus;
-import main.java.edu.tue.dsvis.core.mvc.View;
-import main.java.edu.tue.dsvis.gui.CostMeter;
-import main.java.edu.tue.dsvis.gui.PseudocodePane;
-import main.java.edu.tue.dsvis.widgets.ArrayStrip;
-import main.java.edu.tue.dsvis.widgets.RecursionTreePanel;
+import edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.mvc.View;
+import edu.tue.dsvis.gui.CostMeter;
+import edu.tue.dsvis.gui.PseudocodePane;
+import edu.tue.dsvis.widgets.ArrayStrip;
+import edu.tue.dsvis.widgets.RecursionTreePanel;
 import javax.swing.JSplitPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -150,6 +150,9 @@ public class ArraysView implements View, EventBus.EventListener {
         pseudocode.clearHighlight();
     }
 
+    /** Stops listening to the event bus. */
+    public void detach() { bus.unregister(this); bus.unregister(treePanel); }
+
     public JButton getRunButton() { return runButton; }
 
     public void addRunListener(java.awt.event.ActionListener l) {
@@ -218,10 +221,10 @@ public class ArraysView implements View, EventBus.EventListener {
                     strip.setSearchWindow(range[0], range[1]);
                 } else if (p instanceof Integer line) {
                     pseudocode.highlight(line);
-                } else if (e.getType() == main.java.edu.tue.dsvis.core.event.Event.EventType.HIGHLIGHT_RANGE) {
+                } else if (e.getType() == edu.tue.dsvis.core.event.Event.EventType.HIGHLIGHT_RANGE) {
                     int[] idx = e.getIndices();
                     if (idx.length==2) strip.flashRange(idx[0], idx[1]);
-                } else if (e.getType() == main.java.edu.tue.dsvis.core.event.Event.EventType.LINE) {
+                } else if (e.getType() == edu.tue.dsvis.core.event.Event.EventType.LINE) {
                     int ln = e.getIndices()[0];
                     pseudocode.highlight(ln);
                 }

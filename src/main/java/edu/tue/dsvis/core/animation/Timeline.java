@@ -1,9 +1,11 @@
-package main.java.edu.tue.dsvis.core.animation;
+package edu.tue.dsvis.core.animation;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -15,26 +17,33 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * <p>Minimal responsibilities:
  * <ul>
- *   <li>Play / pause / reset / single-step control</li>
- *   <li>Speed scaling between 0.25× and 4× real-time</li>
+ *   <li>Play / pause / reset / rewind / single-step control</li>
+ *   <li>Speed scaling between 0.05× and 4× real-time</li>
+ *   <li>Each frame stays on screen for its own delay (at least
+ *       {@link #MIN_FRAME_MS} at 1×); zero-delay frames run together with the
+ *       next visible frame</li>
  *   <li>Property change notifications for the current playback position so
  *       UI widgets such as a scrubber can react</li>
  * </ul></p>
  *
  * <p>Future improvements:
  * <ul>
- *   <li>Add rewind / seek ability by storing executed frames</li>
- *   <li>Relay {@link main.java.edu.tue.dsvis.core.event.EventBus} events so
+ *   <li>Add seek and step-back on top of the stored frame history</li>
+ *   <li>Relay {@link edu.tue.dsvis.core.event.EventBus} events so
  *       that views can redraw by event rather than immediately mutating
  *       Swing components</li>
  * </ul></p>
  */
 public class Timeline {
 
+    /** Shortest time a visible frame stays on screen at 1× speed. */
+    static final int MIN_FRAME_MS = 250;
+
     private final ConcurrentLinkedQueue<Frame> queue = new ConcurrentLinkedQueue<>();
+    /** Every frame added since the last reset, so a run can be replayed. */
+    private final List<Frame> history = new ArrayList<>();
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    private final int basePeriodMs; // base period derived from fps
     private double speedFactor = 1.0;
     private final Timer timer;
 
@@ -44,18 +53,11 @@ public class Timeline {
     // Construction
 
     /**
-     * Creates a new {@code Timeline} with a desired frames-per-second rate.
-     *
-     * @param fps desired frames per second (>0)
+     * Creates a new {@code Timeline}.
      */
-    public Timeline(int fps) {
-        if (fps <= 0) {
-            throw new IllegalArgumentException("fps must be positive");
-        }
-        this.basePeriodMs = 1000 / fps;
-        // The timer will be (re)configured when speed changes.
-        this.timer = new Timer(basePeriodMs, e -> tick());
-        this.timer.setRepeats(true);
+    public Timeline() {
+        this.timer = new Timer(0, e -> tick());
+        this.timer.setRepeats(false);
     }
 
     // Public control API
@@ -65,7 +67,8 @@ public class Timeline {
         if (!running) {
             boolean old = running;
             running = true;
-            timer.start();
+            timer.setInitialDelay(0);
+            timer.restart();
             pcs.firePropertyChange("running", old, running);
         }
     }
@@ -87,13 +90,29 @@ public class Timeline {
     public void reset() {
         pause();
         queue.clear();
+        history.clear();
         int oldPos = position;
         position = 0;
         pcs.firePropertyChange("position", oldPos, position);
     }
 
     /**
-     * Executes exactly one frame if available, regardless of running state.
+     * Pauses and queues every frame since the last reset again, so playing
+     * replays the run from the beginning. Models make their first frame
+     * restore the starting state.
+     */
+    public void rewind() {
+        pause();
+        queue.clear();
+        queue.addAll(history);
+        int oldPos = position;
+        position = 0;
+        pcs.firePropertyChange("position", oldPos, position);
+    }
+
+    /**
+     * Executes the next visible frame together with any zero-delay frames
+     * before it, regardless of running state.
      */
     public void stepForward() {
         if (timer.isRunning()) {
@@ -104,7 +123,7 @@ public class Timeline {
     }
 
     /**
-     * Adjusts playback speed. Values are clamped to the range [0.25, 4.0].
+     * Adjusts playback speed. Values are clamped to the range [0.05, 4.0].
      *
      * @param factor the desired speed multiplier
      */
@@ -113,10 +132,7 @@ public class Timeline {
             throw new IllegalArgumentException("factor must be positive");
         }
         double clamped = Math.max(0.05, Math.min(4.0, factor));
-        if (this.speedFactor != clamped) {
-            this.speedFactor = clamped;
-            timer.setDelay((int) Math.round(basePeriodMs / speedFactor));
-        }
+        this.speedFactor = clamped;
     }
 
     /** @return {@code true} when the timeline is actively playing. */
@@ -132,7 +148,9 @@ public class Timeline {
      * @param frame non-null frame to add
      */
     public void addFrame(Frame frame) {
-        queue.add(Objects.requireNonNull(frame));
+        Frame f = Objects.requireNonNull(frame);
+        queue.add(f);
+        history.add(f);
     }
 
     /** @return number of frames remaining in the queue. */
@@ -153,13 +171,27 @@ public class Timeline {
     // Internal helpers
 
     private void tick() {
-        Frame frame = queue.poll();
-        if (frame == null) {
-            // No more frames – pause and notify listeners.
-            pause();
-            return;
+        Frame frame = null;
+        while (true) {
+            frame = queue.poll();
+            if (frame == null) {
+                // No more frames – pause and notify listeners.
+                pause();
+                return;
+            }
+            runFrame(frame);
+            if (frame.getDelayMs() > 0) {
+                break;
+            }
         }
 
+        if (running) {
+            timer.setInitialDelay((int) Math.round(Math.max(frame.getDelayMs(), MIN_FRAME_MS) / speedFactor));
+            timer.restart();
+        }
+    }
+
+    private void runFrame(Frame frame) {
         // Execute the frame's task. It should run on EDT; Timer already runs on EDT,
         // but guard against future call sites (e.g., stepForward from non-EDT).
         if (SwingUtilities.isEventDispatchThread()) {
@@ -172,4 +204,4 @@ public class Timeline {
         position++;
         pcs.firePropertyChange("position", oldPos, position);
     }
-} 
+}

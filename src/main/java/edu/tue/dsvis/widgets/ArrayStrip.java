@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.widgets;
+package edu.tue.dsvis.widgets;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;

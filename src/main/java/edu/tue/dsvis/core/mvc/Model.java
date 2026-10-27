@@ -1,16 +1,13 @@
-package main.java.edu.tue.dsvis.core.mvc;
+package edu.tue.dsvis.core.mvc;
 
-import main.java.edu.tue.dsvis.core.animation.Frame;
-import main.java.edu.tue.dsvis.core.animation.Timeline;
-import main.java.edu.tue.dsvis.core.event.Event;
-import main.java.edu.tue.dsvis.core.event.EventBus;
+import edu.tue.dsvis.core.animation.Timeline;
+import edu.tue.dsvis.core.event.EventBus;
 
 import java.util.Objects;
 
 /**
  * Abstract base class for algorithm models. Provides convenience access to the
- * global {@link EventBus} and {@link Timeline}, plus small helper methods for
- * emitting common events while enqueuing animation {@link Frame}s.
+ * global {@link EventBus} and {@link Timeline}.
  */
 public abstract class Model {
 
@@ -32,29 +29,6 @@ public abstract class Model {
      * {@link Timeline#start()} to play them back.
      */
     public abstract void run();
-
-    // Convenience helpers for subclasses
-
-    /**
-     * Emits a COMPARE event for the given index and enqueues a tiny frame to
-     * visually highlight it.
-     */
-    protected void flash(int index) {
-        bus.post(Event.compare(index));
-        timeline.addFrame(new Frame(() -> {
-            /* no-op placeholder – real visualisation handled in view */
-        }, 16)); // ~60 FPS
-    }
-
-    /**
-     * Emits a SWAP event for the two indices and enqueues a frame placeholder.
-     */
-    protected void swap(int i, int j) {
-        bus.post(Event.swap(i, j));
-        timeline.addFrame(new Frame(() -> {
-            /* no-op placeholder – real visualisation handled in view */
-        }, 16));
-    }
 
     // Optional extension points
 
@@ -83,4 +57,4 @@ public abstract class Model {
             Objects.requireNonNull(timeline, "timeline");
         }
     }
-} 
+}

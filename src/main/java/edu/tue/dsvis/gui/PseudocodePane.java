@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.gui;
+package edu.tue.dsvis.gui;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;

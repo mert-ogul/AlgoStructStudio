@@ -1,6 +1,6 @@
-package main.java.edu.tue.dsvis.core.mvc;
+package edu.tue.dsvis.core.mvc;
 
-import main.java.edu.tue.dsvis.core.event.Event;
+import edu.tue.dsvis.core.event.Event;
 
 /**
  * Minimal contract for UI components interested in visualisation events.

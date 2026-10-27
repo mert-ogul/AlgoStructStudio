@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.core.mvc;
+package edu.tue.dsvis.core.mvc;
 
 /**
  * Minimal contract for controllers responsible for validating user input,

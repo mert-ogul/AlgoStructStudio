@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.core.animation;
+package edu.tue.dsvis.core.animation;
 
 import java.util.Objects;
 

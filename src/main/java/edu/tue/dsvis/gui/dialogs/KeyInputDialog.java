@@ -1,4 +1,4 @@
-package main.java.edu.tue.dsvis.gui.dialogs;
+package edu.tue.dsvis.gui.dialogs;
 
 import javax.swing.*;
 import java.awt.*;
