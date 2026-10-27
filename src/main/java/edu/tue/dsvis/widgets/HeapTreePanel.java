@@ -6,7 +6,6 @@ import edu.tue.dsvis.core.mvc.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.HashMap;
@@ -25,8 +24,6 @@ public class HeapTreePanel extends JPanel implements View, EventBus.EventListene
 
     private final Map<Integer, Long> flashUntil = new HashMap<>();
 
-    private boolean showIndexes = false;
-
     public HeapTreePanel(EventBus bus) {
         bus.register(this);
 
@@ -35,11 +32,9 @@ public class HeapTreePanel extends JPanel implements View, EventBus.EventListene
         });
     }
 
-    /** Toggle whether node index numbers should be shown. */
-    public void setShowIndexes(boolean b) { this.showIndexes = b; repaint(); }
-
     public void setHeap(int[] a) {
         this.heap = a;
+        revalidate();
         repaint();
     }
 
@@ -128,7 +123,7 @@ public class HeapTreePanel extends JPanel implements View, EventBus.EventListene
             g2.setColor(Color.BLACK);
             g2.drawOval(p.x - RADIUS, p.y - RADIUS, DIAM, DIAM);
 
-            String txt = String.valueOf(showIndexes ? i : heap[i]);
+            String txt = String.valueOf(heap[i]);
             FontMetrics fm = g2.getFontMetrics();
             int tw = fm.stringWidth(txt);
             g2.drawString(txt, p.x - tw / 2, p.y + fm.getAscent() / 2 - 2);
@@ -137,5 +132,13 @@ public class HeapTreePanel extends JPanel implements View, EventBus.EventListene
         g2.dispose();
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        if (heap.length == 0) return new Dimension(200, 100);
+        int depth = 31 - Integer.numberOfLeadingZeros(heap.length); // deepest level, 0-based
+        int levelSize = 1 << depth;
+        return new Dimension(levelSize * (DIAM + 8) + 40, (depth + 1) * 50 + DIAM);
+    }
+
     @Override public void onReset() { flashUntil.clear(); repaint(); }
-} 
+}

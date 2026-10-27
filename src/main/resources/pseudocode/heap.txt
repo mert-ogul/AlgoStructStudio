@@ -1,0 +1,39 @@
+1  MAX-HEAPIFY(A, i)
+2      l ← left(i),  r ← right(i),  largest ← i
+3      if l ≤ heap_size and A[l] > A[largest]
+4          largest ← l
+5      if r ≤ heap_size and A[r] > A[largest]
+6          largest ← r
+7      if largest ≠ i
+8          swap A[i] and A[largest]
+9          MAX-HEAPIFY(A, largest)
+10
+11 BUILD-MAX-HEAP(A)
+12     heap_size ← length[A]
+13     for i ← ⌊heap_size/2⌋ downto 1
+14         MAX-HEAPIFY(A, i)
+15
+16 INSERT-KEY(A, key)
+17     heap_size ← heap_size + 1
+18     A[heap_size] ← key
+19     SIFT-UP(A, heap_size)
+20
+21 EXTRACT-MAX(A)
+22     max ← A[1]
+23     swap A[1] and A[heap_size]
+24     heap_size ← heap_size − 1
+25     MAX-HEAPIFY(A, 1)
+26     return max
+27
+28 INCREASE-KEY(A, i, Δ)
+29     A[i] ← A[i] + Δ
+30     SIFT-UP(A, i)
+31
+32 DECREASE-KEY(A, i, Δ)
+33     A[i] ← A[i] − Δ
+34     MAX-HEAPIFY(A, i)
+35
+36 SIFT-UP(A, i)
+37     while i > 1 and A[parent(i)] < A[i]
+38         swap A[i] and A[parent(i)]
+39         i ← parent(i)

@@ -28,15 +28,17 @@ public class HeapsView implements View, EventBus.EventListener {
             "Insert k", "Extract-Max", "Increase-Key(i,Δ)", "Decrease-Key(i,Δ)"});
     private final JButton btnRunOp = new JButton("Run op");
     private final JButton btnCompare = new JButton("Compare builds");
+    private final JLabel statusLabel = new JLabel(" ");
 
     // CENTER visual components
     private final HeapArrayStrip arrayStrip = new HeapArrayStrip();
     private final HeapTreePanel treePanel = new HeapTreePanel(EventBus.getGlobal());
     private final PriorityQueuePanel pqPanel = new PriorityQueuePanel();
-    private final PseudocodePane pseudocodePane = new PseudocodePane("/pseudocode/heap_intro.txt");
+    private final PseudocodePane pseudocodePane = new PseudocodePane("/pseudocode/heap.txt");
 
     // SOUTH cost
     private final CostMeter costMeter = new CostMeter();
+    private long steps = 0;
 
     public HeapsView() {
         buildUI();
@@ -58,8 +60,8 @@ public class HeapsView implements View, EventBus.EventListener {
         bar.add(btnBuild);
         bar.add(cmbOperation);
         bar.add(btnRunOp);
-        btnCompare.setVisible(false);
         bar.add(btnCompare);
+        bar.add(statusLabel);
         root.add(bar, BorderLayout.NORTH);
 
         // bind twin
@@ -109,8 +111,7 @@ public class HeapsView implements View, EventBus.EventListener {
 
     public void addBuildListener(java.awt.event.ActionListener l) { btnBuild.addActionListener(l); }
     public void addRunOpListener(java.awt.event.ActionListener l) { btnRunOp.addActionListener(l); }
-
-    public void bindPQModel(edu.tue.dsvis.modules.heaps.HeapModel m) { pqPanel.bindModel(m); }
+    public void addCompareListener(java.awt.event.ActionListener l) { btnCompare.addActionListener(l); }
 
     public JPanel getRoot() { return root; }
 
@@ -137,30 +138,19 @@ public class HeapsView implements View, EventBus.EventListener {
 
     public String getSelectedOperation() { return (String) cmbOperation.getSelectedItem(); }
 
-    public int getOpKey() {
-        String in = JOptionPane.showInputDialog(root, "Key:");
-        return in == null ? Integer.MIN_VALUE : Integer.parseInt(in.trim());
-    }
-    public int getOpIndex() {
-        String in = JOptionPane.showInputDialog(root, "Index:");
-        return in == null ? -1 : Integer.parseInt(in.trim());
-    }
-    public int getOpDelta() {
-        String in = JOptionPane.showInputDialog(root, "Delta:");
-        return in == null ? 0 : Integer.parseInt(in.trim());
-    }
-
     public void refreshHeap(int[] snap) {
         arrayStrip.setData(snap);
         treePanel.setHeap(snap);
-        pqPanel.repaint();
+        pqPanel.setData(snap);
     }
 
     public void resetView() {
         arrayStrip.clearHighlights();
         arrayStrip.clearSearchWindow();
         treePanel.onReset();
-        costMeter.setMetric("Steps",0);
+        steps = 0;
+        costMeter.setMetric("Steps", steps);
+        statusLabel.setText(" ");
         pseudocodePane.clearHighlight();
     }
 
@@ -173,9 +163,25 @@ public class HeapsView implements View, EventBus.EventListener {
                 arrayStrip.flashRange(idx[0], idx[1]);
             }
             case LINE -> pseudocodePane.highlight(e.getIndices()[0]);
+            case HEAP_STATE -> refreshHeap((int[]) e.getPayload());
+            case COMPARE -> arrayStrip.flash(e.getIndices()[0]);
+            case SWAP -> {
+                int[] idx = e.getIndices();
+                if (idx.length >= 2) {
+                    arrayStrip.flash(idx[0]);
+                    arrayStrip.flash(idx[1]);
+                }
+            }
+            case RESULT -> statusLabel.setText(String.valueOf(e.getPayload()));
+            case CUSTOM -> {
+                if ("STEP".equals(e.getPayload())) {
+                    steps++;
+                    costMeter.setMetric("Steps", steps);
+                }
+            }
             default -> {}
         }
     }
 
     @Override public void onReset() { resetView(); }
-} 
+}

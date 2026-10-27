@@ -38,6 +38,7 @@ public final class Event implements Serializable {
         EXTRACT_KEY,  // root index after extraction completed
         KEY_UPDATE,
         HIGHLIGHT,
+        HEAP_STATE, // payload: snapshot of the heap array to draw
         SET_VALUE,
         RESULT, // message for the user, e.g. the outcome of a search
         CUSTOM
@@ -160,6 +161,14 @@ public final class Event implements Serializable {
      */
     public static Event keyUpdate(int idx) {
         return new Event(EventType.KEY_UPDATE, new int[]{idx}, null);
+    }
+
+    /**
+     * Carries a snapshot of the heap array so views can redraw it exactly as
+     * it is at this point of the animation.
+     */
+    public static Event heapState(int[] heap) {
+        return new Event(EventType.HEAP_STATE, null, Arrays.copyOf(heap, heap.length));
     }
 
 
